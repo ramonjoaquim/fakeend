@@ -21,7 +21,7 @@ public class CollectionsController {
 
   @GetMapping()
   public ResponseEntity<?> getCollection() {
-    return ResponseEntity.ok().body(mongoRepository.getMongoDatabase().listCollections());
+    return ResponseEntity.ok().body(mongoRepository.getMongoDatabase().listCollectionNames());
   }
 
   @PostMapping(path = "create")
