@@ -118,6 +118,13 @@ returns
     "id": 1
 }
 
+//DELETE BY ID
+DELETE http://localhost:8080/fakeend/person/1
+returns status code 204, body empty.
+
+note: for DELETE method, is available purge-all to clear all data in your endpoint
+DELETE http://localhost:8080/fakeend/person/purge-all
+return status code 204, body empty.
 ```
 
 ## Contributing
