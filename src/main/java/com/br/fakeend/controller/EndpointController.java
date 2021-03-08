@@ -12,11 +12,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.br.fakeend.commons.Constants.*;
+import static com.br.fakeend.commons.Constants.NAME;
+import static com.br.fakeend.commons.Constants.PATH;
 
 @RestController
 @RequestMapping(value = "/api/endpoint", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -77,7 +77,6 @@ public class EndpointController {
 
   private Document buildEndpoint(Endpoint endpoint) {
     Document document = new Document();
-    document.put(ID, UUID.randomUUID());
     document.put(NAME, endpoint.getName());
     document.put(PATH, endpoint.getPath());
 

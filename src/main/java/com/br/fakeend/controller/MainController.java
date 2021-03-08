@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.UUID;
 
 import static com.br.fakeend.commons.Constants.*;
 import static java.lang.Integer.parseInt;
@@ -32,8 +31,9 @@ public class MainController {
 
   @RequestMapping(
       value = "/**",
-      method = {RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT})
-  public ResponseEntity<?> mainSolve(@RequestBody(required = false) Map<String, Object> body, HttpServletRequest request) {
+      method = {RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE})
+  public ResponseEntity<?> mainSolve(
+      @RequestBody(required = false) Map<String, Object> body, HttpServletRequest request) {
     var pathHandler = getPathHandler(request);
     switch (request.getMethod()) {
       case "GET":
@@ -42,6 +42,8 @@ public class MainController {
         return mainPOST(body, pathHandler);
       case "PUT":
         return mainPUT(body, pathHandler);
+      case "DELETE":
+        return mainDELETE(pathHandler);
       default:
         return null;
     }
@@ -56,13 +58,14 @@ public class MainController {
     }
 
     return Objects.equals(pathHandler.get(ID_PATH), ID_PATH_DEFAULT)
-            ? business.getAll(endpoint.get(NAME).toString())
-            : business.getById((Integer) pathHandler.get(ID_PATH), endpoint.get(NAME).toString());
+        ? business.getAll(endpoint.get(NAME).toString())
+        : business.getById((Integer) pathHandler.get(ID_PATH), endpoint.get(NAME).toString());
   }
 
   private ResponseEntity<?> mainPOST(Map<String, Object> body, Map<String, Object> pathHandler) {
     if (!Objects.equals(pathHandler.get(ID_PATH), ID_PATH_DEFAULT)) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Identifier not be used in URL in POST method, use PUT/PATCH method instead.");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body("Identifier not be used in URL in POST method, use PUT/PATCH method instead.");
     }
 
     Map endpoint = business.getEndpoint(COLLECTION, (String) pathHandler.get(PATH));
@@ -76,7 +79,8 @@ public class MainController {
 
   private ResponseEntity<?> mainPUT(Map<String, Object> body, Map<String, Object> pathHandler) {
     if (pathHandler.get(ID_PATH).equals(ID_PATH_DEFAULT)) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Identifier path must be informed in URL.");
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body("Identifier path must be informed in URL.");
     }
 
     Map endpoint = business.getEndpoint(COLLECTION, (String) pathHandler.get(PATH));
@@ -87,9 +91,26 @@ public class MainController {
 
     if (!body.containsKey(ID)) body.put(ID, pathHandler.get(ID_PATH));
 
-    UUID idEndpoint = business.getIdEndpoint(COLLECTION, (String) pathHandler.get(PATH));
+    return business.update(body, endpoint.get(NAME).toString());
+  }
 
-    return business.update(idEndpoint, body, endpoint.get(NAME).toString());
+  private ResponseEntity<?> mainDELETE(Map<String, Object> pathHandler) {
+    if (pathHandler.get(ID_PATH).equals(ID_PATH_DEFAULT) && !((Boolean) pathHandler.get(PURGE_ALL))) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+          .body("Identifier path must be informed in URL.");
+    }
+
+    Map endpoint = business.getEndpoint(COLLECTION, (String) pathHandler.get(PATH));
+    Map<String, Object> resultValidation = validateRequest(endpoint, null, false);
+
+    if (resultValidation.containsKey("Error") || resultValidation.get("Error") != null) {
+      return (ResponseEntity<?>) resultValidation.get("Message");
+    }
+
+    return business.delete(
+        (Integer) pathHandler.get(ID_PATH),
+        endpoint.get(NAME).toString(),
+        (Boolean) pathHandler.get(PURGE_ALL));
   }
 
   private Map<String, Object> validateRequest(Map endpoint, Map body, Boolean bodyRequired) {
@@ -102,7 +123,9 @@ public class MainController {
 
     if (bodyRequired && Objects.isNull(body)) {
       map.put("Error", true);
-      map.put("Message", ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Body Request must be informed."));
+      map.put(
+          "Message",
+          ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Body Request must be informed."));
       return map;
     }
 
@@ -113,10 +136,16 @@ public class MainController {
     String fullPath =
         (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
     String path;
+    Boolean purgeAll = false;
     int idPath = ID_PATH_DEFAULT;
     // verify path ends with number
     if (!fullPath.split("/fakeend/")[1].matches("^.+?\\d$")) {
-      path = fullPath.split("/fakeend/")[1];
+      if (fullPath.split("/fakeend/")[1].endsWith("/purge-all")) {
+        path = fullPath.split("/fakeend/")[1].replace("/purge-all", "");
+        purgeAll = true;
+      } else {
+        path = fullPath.split("/fakeend/")[1];
+      }
     } else {
       // remove number from string
       path = fullPath.split("/fakeend/")[1].replaceAll("\\d", "");
@@ -129,6 +158,7 @@ public class MainController {
     Map<String, Object> result = new LinkedHashMap<>();
     result.put(PATH, path);
     result.put(ID_PATH, idPath);
+    result.put(PURGE_ALL, purgeAll);
 
     return result;
   }

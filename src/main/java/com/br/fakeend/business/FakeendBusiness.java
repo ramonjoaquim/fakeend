@@ -6,6 +6,8 @@ import com.br.fakeend.repository.IMongoRepository;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.FindOneAndUpdateOptions;
 import com.mongodb.client.model.Projections;
+import com.mongodb.client.result.DeleteResult;
+import com.mongodb.client.result.UpdateResult;
 import lombok.var;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,16 +30,15 @@ public class FakeendBusiness implements IMongoRepository {
   }
 
   @Override
-  public ResponseEntity<?> update(UUID idEndpoint, Map<String, Object> body, String collection) {
+  public ResponseEntity<?> update(Map<String, Object> body, String collection) {
     Document condition = new Document(ID, body.get(ID));
     Document document = new Document();
-    document.put("idEndpoint", idEndpoint);
     document.put(ID, body.get(ID));
     document.put(BODY, body);
 
     FindOneAndUpdateOptions options = new FindOneAndUpdateOptions();
     options.upsert(true);
-    var target =
+    UpdateResult target =
         repository.getMongoDatabase().getCollection(collection).replaceOne(condition, document);
 
     return target.getModifiedCount() == 0
@@ -57,8 +58,6 @@ public class FakeendBusiness implements IMongoRepository {
             .getCollection(collection)
             .find(filter);
     if (retornoByPath.first() != null) {
-      UUID idEndpoint = retornoByPath.first().get(ID, UUID.class);
-
       MongoCollection<Document> mongoCollection =
           repository.getMongoDatabase().getCollection(endpoint.get("name").toString());
 
@@ -67,7 +66,6 @@ public class FakeendBusiness implements IMongoRepository {
       else body.replace(ID, lastId + 1);
 
       Document insert = new Document();
-      insert.put("idEndpoint", idEndpoint);
       insert.put(ID, body.get(ID));
       insert.put(BODY, body);
       mongoCollection.insertOne(insert);
@@ -89,7 +87,7 @@ public class FakeendBusiness implements IMongoRepository {
   }
 
   @Override
-  public ResponseEntity<?> getAll(String collection) {
+  public ResponseEntity<ResultPretty> getAll(String collection) {
     var retorno =
         repository
             .getMongoDatabase()
@@ -127,18 +125,6 @@ public class FakeendBusiness implements IMongoRepository {
   }
 
   @Override
-  public UUID getIdEndpoint(String collection, String path) {
-    Document filter = new Document();
-    filter.put(PATH, path);
-    return repository
-        .getMongoDatabase()
-        .getCollection(collection)
-        .find(filter)
-        .first()
-        .get(ID, UUID.class);
-  }
-
-  @Override
   public Map getEndpoint(String collection, String path) {
     Document filter = new Document();
     filter.put(PATH, path);
@@ -155,5 +141,25 @@ public class FakeendBusiness implements IMongoRepository {
     }
 
     return mapper;
+  }
+
+  @Override
+  public ResponseEntity<?> delete(int id, String collection, Boolean purgeAll) {
+    if (purgeAll) {
+      DeleteResult retorno =
+              repository.getMongoDatabase().getCollection(collection).deleteMany(new Document());
+      return retorno.getDeletedCount() > 0
+              ? ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+              : ResponseEntity.status(HttpStatus.OK).body(String.format("Collection %s was already empty", collection));
+    } else {
+      Document filter = new Document();
+      filter.put(ID, id);
+      DeleteResult retorno =
+              repository.getMongoDatabase().getCollection(collection).deleteOne(filter);
+
+      return retorno.getDeletedCount() > 0
+              ? ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+              : ResponseEntity.status(HttpStatus.OK).body(String.format("Record with id %d not found.", id));
+    }
   }
 }
