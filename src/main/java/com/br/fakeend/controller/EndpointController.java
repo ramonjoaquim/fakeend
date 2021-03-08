@@ -27,7 +27,7 @@ public class EndpointController {
 
   @Autowired private final MongoRepository mongoRepository;
 
-  @PostMapping(path = "criar", produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(path = "create", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<?> createEndpoint(@RequestBody Endpoint endpoint) {
 
     if (Objects.isNull(endpoint)) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();

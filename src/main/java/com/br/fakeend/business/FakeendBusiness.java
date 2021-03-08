@@ -4,7 +4,6 @@ import com.br.fakeend.config.MongoRepository;
 import com.br.fakeend.model.ResultPretty;
 import com.br.fakeend.repository.IMongoRepository;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.FindOneAndUpdateOptions;
 import com.mongodb.client.model.Projections;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
@@ -36,15 +35,47 @@ public class FakeendBusiness implements IMongoRepository {
     document.put(ID, body.get(ID));
     document.put(BODY, body);
 
-    FindOneAndUpdateOptions options = new FindOneAndUpdateOptions();
-    options.upsert(true);
     UpdateResult target =
         repository.getMongoDatabase().getCollection(collection).replaceOne(condition, document);
 
     return target.getModifiedCount() == 0
-        ? ResponseEntity.status(HttpStatus.NOT_FOUND)
+        ? ResponseEntity.status(HttpStatus.NO_CONTENT)
             .body("Record with id " + body.get(ID) + " not found.")
         : ResponseEntity.ok().build();
+  }
+
+  @Override
+  public  ResponseEntity<?> patch(int id, Map<String, Object> body, String collection) {
+    Document filter = new Document();
+    filter.put(ID, id);
+    var retorno =
+            repository.getMongoDatabase().getCollection(collection).find(filter).first();
+
+    Document bodyExtract = (Document) retorno.get(BODY);
+    List<Document> documentList = new ArrayList<>(bodyExtract.keySet().size());
+
+    for (String key : bodyExtract.keySet()) {
+      if (body.containsKey(key) && !body.containsKey(ID)) {
+          bodyExtract.replace(key, body.get(key));
+      }
+
+      documentList.add(new Document(key, bodyExtract.get(key)));
+    }
+
+    Map<String, Object> newBody = new LinkedHashMap<>();
+    documentList.forEach(item -> item.keySet().forEach(key -> newBody.put(key, item.get(key))));
+
+    Document document = new Document();
+    document.put(ID, id);
+    document.put(BODY, newBody);
+
+    UpdateResult target =
+            repository.getMongoDatabase().getCollection(collection).replaceOne(filter, document);
+
+    return target.getModifiedCount() == 0
+            ? ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(String.format("Record with id %s or propertie for PATCH not found.", id))
+            : ResponseEntity.ok().body(newBody);
   }
 
   @Override

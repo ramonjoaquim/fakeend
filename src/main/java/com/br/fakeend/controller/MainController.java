@@ -31,7 +31,7 @@ public class MainController {
 
   @RequestMapping(
       value = "/**",
-      method = {RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE})
+      method = {RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.PATCH})
   public ResponseEntity<?> mainSolve(
       @RequestBody(required = false) Map<String, Object> body, HttpServletRequest request) {
     var pathHandler = getPathHandler(request);
@@ -44,8 +44,10 @@ public class MainController {
         return mainPUT(body, pathHandler);
       case "DELETE":
         return mainDELETE(pathHandler);
+      case "PATCH":
+        return mainPATCH(body, pathHandler);
       default:
-        return null;
+        throw new RuntimeException("Oops, something is wrong. By the way, look if your problem are in our GitHub issues https://github.com/ramonjoaquim/fakeend/issues");
     }
   }
 
@@ -113,6 +115,20 @@ public class MainController {
         (Boolean) pathHandler.get(PURGE_ALL));
   }
 
+  private ResponseEntity<?> mainPATCH(Map<String, Object> body, Map<String, Object> pathHandler) {
+    if (pathHandler.get(ID_PATH).equals(ID_PATH_DEFAULT)) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+              .body("Identifier path must be informed in URL.");
+    }
+
+    Map endpoint = business.getEndpoint(COLLECTION, (String) pathHandler.get(PATH));
+    Map<String, Object> resultValidation = validateRequest(endpoint, body, true);
+    if (resultValidation.containsKey("Error") || resultValidation.get("Error") != null) {
+      return (ResponseEntity<?>) resultValidation.get("Message");
+    }
+
+    return business.patch((Integer) pathHandler.get(ID_PATH), body, endpoint.get(NAME).toString());
+  }
   private Map<String, Object> validateRequest(Map endpoint, Map body, Boolean bodyRequired) {
     Map<String, Object> map = new LinkedHashMap<>();
     if (endpoint.isEmpty()) {

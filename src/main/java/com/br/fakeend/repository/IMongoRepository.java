@@ -19,4 +19,6 @@ public interface IMongoRepository {
   Map<String, Object> getEndpoint(String collection, String path);
 
   ResponseEntity<?> delete(int id, String collection, Boolean purgeAll);
+
+  ResponseEntity<?> patch(int id, Map<String, Object> body, String collection);
 }
