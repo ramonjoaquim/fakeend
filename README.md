@@ -25,6 +25,9 @@ mongodb.uri=mongodb+srv://<user>:<password>@cluster5.t4r5.mongodb.net/<database>
 mongodb.database=<database>
 ````
 
+## Swagger
+API docs is available on http://localhost:8080/swagger-ui.html
+
 ## Usage
 1 - Create a endpoint
 ```json
@@ -131,10 +134,6 @@ return status code 204, body empty.
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 Please make sure to update tests as appropriate.
-
-## Next steps
-- Unit Test
-- Include Swagger
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.HandlerMapping;
+import springfox.documentation.annotations.ApiIgnore;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.LinkedHashMap;
@@ -23,6 +24,7 @@ import static java.lang.Integer.parseInt;
 
 @RestController
 @RequestMapping(value = "/fakeend", produces = MediaType.APPLICATION_JSON_VALUE)
+@ApiIgnore
 @AllArgsConstructor
 public class MainController {
   private static final String COLLECTION = "ENDPOINTS";
