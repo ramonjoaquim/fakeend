@@ -28,7 +28,7 @@ mongodb.database=<database>
 ## Usage
 1 - Create a endpoint
 ```json
-POST http://localhost:8080/api/endpoint/create
+POST http://localhost:8080/fakeend/api/endpoint/create
 
 {
     "name":"person", //to identify collection in mongoDB

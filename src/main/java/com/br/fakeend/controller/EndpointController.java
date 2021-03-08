@@ -19,7 +19,7 @@ import static com.br.fakeend.commons.Constants.NAME;
 import static com.br.fakeend.commons.Constants.PATH;
 
 @RestController
-@RequestMapping(value = "/api/endpoint", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "fakeend/api/endpoint", produces = MediaType.APPLICATION_JSON_VALUE)
 @AllArgsConstructor
 public class EndpointController {
   private static final String COLLECTION = "ENDPOINTS";
