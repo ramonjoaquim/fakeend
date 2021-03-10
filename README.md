@@ -1,12 +1,13 @@
 # Fake-end
 
-Fake-end is a application made in Spring Boot + mongoDB that's provide a fake end server with methods 
+Fake-end is a application made in Spring Boot + mongoDB that's provide a fake end server with verbs 
 - POST
 - GET
 - DELETE
 - PUT
 - PATCH
 
+It's a good choice for test front-end applications with real response of a API.
 ## Installation
 
 ```bash
@@ -125,7 +126,7 @@ returns
 DELETE http://localhost:8080/fakeend/person/1
 returns status code 204, body empty.
 
-note: for DELETE method, is available purge-all to clear all data in your endpoint
+note: for DELETE verb, is available purge-all to clear all data in your endpoint fake
 DELETE http://localhost:8080/fakeend/person/purge-all
 return status code 204, body empty.
 ```
