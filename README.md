@@ -62,7 +62,7 @@ API docs is available on http://localhost:8080/swagger-ui.html
 > GET http://localhost:8080/fakeend/person
 
 return below
-```
+```json
 {
     "results": 1,
     "content": [
@@ -83,7 +83,7 @@ return below
 > GET http://localhost:8080/fakeend/person/1
 
 return below
-```
+```json
 {
     "name": "Ramon Joaquim",
     "age": 24,
@@ -100,7 +100,7 @@ return below
 note: the update is update all your data by ID
 
 body example below
-```
+```json
 {
     "name": "Ramon Joaquim",
      "age": 24
@@ -115,7 +115,7 @@ note: the pacth is update specifc propertie by ID
 
 body example below
 
-```
+```json
 {
      "age": 30
 }
@@ -123,7 +123,7 @@ body example below
 
 returns 
 
-```
+```json
 {
     "name": "Ramon Joaquim",
     "age": 30,
