@@ -1,4 +1,4 @@
-# Fake-end
+# Fake-end :hotsprings:
 
 Fake-end is a application made in Spring Boot + mongoDB that's provide a fake end server with verbs 
 - POST
@@ -148,6 +148,10 @@ return status code 204, body empty.
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 Please make sure to update tests as appropriate.
+ 
+## What's next :soon:
++ personalized timeout for response
++ a main page for endpoints registred
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
