@@ -17,13 +17,12 @@ mvn spring-boot:run
 by default application is running in port :8080
 ```
 
-## MongoDB (Required)
+## MongoDB (Required) :warning:
 for run application is need a mongo connection with values set in [application.properties](src/main/resources/application.properties)
+> Example using mongoDB Atlas
 ````
-Example
-
-mongodb.uri=mongodb+srv://<user>:<password>@cluster5.t4r5.mongodb.net/<database>?retryWrites=true&w=majority
-mongodb.database=<database>
+mongodb.uri=mongodb+srv://<USER>:<PASSWORD>@cluster5.t4r5.mongodb.net/<DATABASE>?retryWrites=true&w=majority
+mongodb.database=<DATABASE>
 ````
 
 ## Swagger
