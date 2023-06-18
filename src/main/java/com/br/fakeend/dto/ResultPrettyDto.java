@@ -1,4 +1,4 @@
-package com.br.fakeend.model;
+package com.br.fakeend.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @Builder
 @AllArgsConstructor
-public class ResultPretty {
+public class ResultPrettyDto {
     private Integer results;
     private Object content;
 }

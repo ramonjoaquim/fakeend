@@ -1,11 +1,13 @@
 package com.br.fakeend.commons;
 
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
 public class Constants {
+
+  private Constants() {
+  }
+
   public static final String PATH = "path";
   public static final String NAME = "name";
   public static final String REQUEST_METHOD_TYPE = "requestMethodType";

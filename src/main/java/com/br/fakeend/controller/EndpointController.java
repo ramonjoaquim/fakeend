@@ -32,13 +32,13 @@ public class EndpointController {
 
     if (Objects.isNull(endpoint)) return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
-    if (endpointExists(endpoint.getName(), endpoint.getPath())) {
+    if (endpointExists(endpoint.name(), endpoint.path())) {
       return ResponseEntity.status(HttpStatus.CONFLICT)
-          .body(String.format("Endpoint %s already exists", endpoint.getName()));
+          .body(String.format("Endpoint %s already exists", endpoint.name()));
     }
 
     // Criação da collection para armazenar os dados fake referenciado pelo name do endpoint
-    createCollectionIfNotExists(endpoint.getName());
+    createCollectionIfNotExists(endpoint.name());
     Document documento = buildEndpoint(endpoint);
     mongoRepository.getMongoDatabase().getCollection(COLLECTION).insertOne(documento);
 
@@ -77,8 +77,8 @@ public class EndpointController {
 
   private Document buildEndpoint(Endpoint endpoint) {
     Document document = new Document();
-    document.put(NAME, endpoint.getName());
-    document.put(PATH, endpoint.getPath());
+    document.put(NAME, endpoint.name());
+    document.put(PATH, endpoint.path());
 
     return document;
   }

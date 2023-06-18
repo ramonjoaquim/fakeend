@@ -1,13 +1,12 @@
 package com.br.fakeend.business;
 
 import com.br.fakeend.config.MongoRepository;
-import com.br.fakeend.model.ResultPretty;
+import com.br.fakeend.dto.ResultPrettyDto;
 import com.br.fakeend.repository.IMongoRepository;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Projections;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
-import lombok.var;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,14 +21,15 @@ import static java.lang.Integer.parseInt;
 @Component
 public class FakeendBusiness implements IMongoRepository {
 
-  @Autowired private final MongoRepository repository;
+  private final MongoRepository repository;
 
+  @Autowired
   public FakeendBusiness(MongoRepository repository) {
     this.repository = repository;
   }
 
   @Override
-  public ResponseEntity<?> update(Map<String, Object> body, String collection) {
+  public ResponseEntity<Object> update(Map<String, Object> body, String collection) {
     Document condition = new Document(ID, body.get(ID));
     Document document = new Document();
     document.put(ID, body.get(ID));
@@ -45,7 +45,7 @@ public class FakeendBusiness implements IMongoRepository {
   }
 
   @Override
-  public  ResponseEntity<?> patch(int id, Map<String, Object> body, String collection) {
+  public  ResponseEntity<Object> patch(int id, Map<String, Object> body, String collection) {
     Document filter = new Document();
     filter.put(ID, id);
     var retorno =
@@ -106,7 +106,7 @@ public class FakeendBusiness implements IMongoRepository {
   }
 
   @Override
-  public ResponseEntity<?> getById(int id, String collection) {
+  public ResponseEntity<Object> getById(int id, String collection) {
     Document filter = new Document();
     filter.put(ID, id);
     var retorno =
@@ -118,7 +118,7 @@ public class FakeendBusiness implements IMongoRepository {
   }
 
   @Override
-  public ResponseEntity<ResultPretty> getAll(String collection) {
+  public ResponseEntity<ResultPrettyDto> getAll(String collection) {
     var retorno =
         repository
             .getMongoDatabase()
@@ -130,7 +130,7 @@ public class FakeendBusiness implements IMongoRepository {
       justBody.add(document.get(BODY));
     }
 
-    ResultPretty build = ResultPretty.builder()
+    ResultPrettyDto build = ResultPrettyDto.builder()
             .results(justBody.size())
             .content(justBody)
             .build();
@@ -175,7 +175,7 @@ public class FakeendBusiness implements IMongoRepository {
   }
 
   @Override
-  public ResponseEntity<?> delete(int id, String collection, Boolean purgeAll) {
+  public ResponseEntity<Object> delete(int id, String collection, Boolean purgeAll) {
     if (purgeAll) {
       DeleteResult retorno =
               repository.getMongoDatabase().getCollection(collection).deleteMany(new Document());

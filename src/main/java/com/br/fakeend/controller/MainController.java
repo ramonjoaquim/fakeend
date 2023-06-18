@@ -1,8 +1,8 @@
 package com.br.fakeend.controller;
 
 import com.br.fakeend.business.FakeendBusiness;
+import com.br.fakeend.dto.ValidationDto;
 import lombok.AllArgsConstructor;
-import lombok.var;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -35,30 +35,25 @@ public class MainController {
       value = "/**",
       method = {RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.PATCH})
   public ResponseEntity<?> mainSolve(
-      @RequestBody(required = false) Map<String, Object> body, HttpServletRequest request) {
+      @RequestBody(required = false) Map<String, Object> body, HttpServletRequest request) throws Exception {
     var pathHandler = getPathHandler(request);
-    switch (request.getMethod()) {
-      case "GET":
-        return mainGET(pathHandler);
-      case "POST":
-        return mainPOST(body, pathHandler);
-      case "PUT":
-        return mainPUT(body, pathHandler);
-      case "DELETE":
-        return mainDELETE(pathHandler);
-      case "PATCH":
-        return mainPATCH(body, pathHandler);
-      default:
-        throw new RuntimeException("Oops, something is wrong. By the way, look if your problem are in our GitHub issues https://github.com/ramonjoaquim/fakeend/issues");
-    }
+    return switch (RequestMethod.valueOf(request.getMethod())) {
+      case GET -> mainGET(pathHandler);
+      case POST -> mainPOST(body, pathHandler);
+      case PUT -> mainPUT(body, pathHandler);
+      case DELETE -> mainDELETE(pathHandler);
+      case PATCH -> mainPATCH(body, pathHandler);
+      default ->
+              throw new Exception("Oops, something is wrong. By the way, look if your problem are in our GitHub issues https://github.com/ramonjoaquim/fakeend/issues");
+    };
   }
 
   private ResponseEntity<?> mainGET(Map<String, Object> pathHandler) {
     Map endpoint = business.getEndpoint(COLLECTION, (String) pathHandler.get(PATH));
-    Map<String, Object> resultValidation = validateRequest(endpoint, null, false);
+    ValidationDto resultValidation = validateRequest(endpoint, null, false);
 
-    if (resultValidation.containsKey("Error") || resultValidation.get("Error") != null) {
-      return (ResponseEntity<?>) resultValidation.get("Message");
+    if (resultValidation.isContainsError()) {
+      return resultValidation.getMessage();
     }
 
     return Objects.equals(pathHandler.get(ID_PATH), ID_PATH_DEFAULT)
@@ -73,9 +68,9 @@ public class MainController {
     }
 
     Map endpoint = business.getEndpoint(COLLECTION, (String) pathHandler.get(PATH));
-    Map<String, Object> resultValidation = validateRequest(endpoint, body, true);
-    if (resultValidation.containsKey("Error") || resultValidation.get("Error") != null) {
-      return (ResponseEntity<?>) resultValidation.get("Message");
+    ValidationDto resultValidation = validateRequest(endpoint, body, true);
+    if (resultValidation.isContainsError()) {
+      return resultValidation.getMessage();
     }
 
     return business.create(endpoint, body, (String) pathHandler.get(PATH), COLLECTION);
@@ -88,9 +83,9 @@ public class MainController {
     }
 
     Map endpoint = business.getEndpoint(COLLECTION, (String) pathHandler.get(PATH));
-    Map<String, Object> resultValidation = validateRequest(endpoint, body, true);
-    if (resultValidation.containsKey("Error") || resultValidation.get("Error") != null) {
-      return (ResponseEntity<?>) resultValidation.get("Message");
+    ValidationDto resultValidation = validateRequest(endpoint, body, true);
+    if (resultValidation.isContainsError()) {
+      return resultValidation.getMessage();
     }
 
     if (!body.containsKey(ID)) body.put(ID, pathHandler.get(ID_PATH));
@@ -105,10 +100,10 @@ public class MainController {
     }
 
     Map endpoint = business.getEndpoint(COLLECTION, (String) pathHandler.get(PATH));
-    Map<String, Object> resultValidation = validateRequest(endpoint, null, false);
+    ValidationDto resultValidation = validateRequest(endpoint, null, false);
 
-    if (resultValidation.containsKey("Error") || resultValidation.get("Error") != null) {
-      return (ResponseEntity<?>) resultValidation.get("Message");
+    if (resultValidation.isContainsError()) {
+      return resultValidation.getMessage();
     }
 
     return business.delete(
@@ -124,37 +119,30 @@ public class MainController {
     }
 
     Map endpoint = business.getEndpoint(COLLECTION, (String) pathHandler.get(PATH));
-    Map<String, Object> resultValidation = validateRequest(endpoint, body, true);
-    if (resultValidation.containsKey("Error") || resultValidation.get("Error") != null) {
-      return (ResponseEntity<?>) resultValidation.get("Message");
+    ValidationDto resultValidation = validateRequest(endpoint, body, true);
+    if (resultValidation.isContainsError()) {
+      return resultValidation.getMessage();
     }
 
     return business.patch((Integer) pathHandler.get(ID_PATH), body, endpoint.get(NAME).toString());
   }
-  private Map<String, Object> validateRequest(Map endpoint, Map body, Boolean bodyRequired) {
-    Map<String, Object> map = new LinkedHashMap<>();
+  private ValidationDto validateRequest(Map endpoint, Map body, boolean bodyRequired) {
     if (endpoint.isEmpty()) {
-      map.put("Error", true);
-      map.put("Message", ResponseEntity.status(HttpStatus.NOT_FOUND).body("Endpoint not found."));
-      return map;
+      return new ValidationDto(true, ResponseEntity.status(HttpStatus.NOT_FOUND).body("Endpoint not found."));
     }
 
     if (bodyRequired && Objects.isNull(body)) {
-      map.put("Error", true);
-      map.put(
-          "Message",
-          ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Body Request must be informed."));
-      return map;
+      return new ValidationDto(true, ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Body Request must be informed."));
     }
 
-    return map;
+    return new ValidationDto();
   }
 
   private Map<String, Object> getPathHandler(HttpServletRequest request) {
     String fullPath =
         (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
     String path;
-    Boolean purgeAll = false;
+    boolean purgeAll = false;
     int idPath = ID_PATH_DEFAULT;
     // verify path ends with number
     if (!fullPath.split("/fakeend/")[1].matches("^.+?\\d$")) {

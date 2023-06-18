@@ -1,4 +1,4 @@
-package com.br.fakeend.healthcheck;
+package com.br.fakeend.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
