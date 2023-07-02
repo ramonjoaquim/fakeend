@@ -18,7 +18,7 @@ by default application is running in port :8080
 ```
 
 ## MongoDB (Required) :warning:
-for run application is need a mongo connection with values set in [application.properties](src/main/resources/application.properties)
+for run application is need a mongo connection with values set in [application.properties](src/main/resources/application.yml)
 > Example using mongoDB Atlas
 ````
 mongodb.uri=mongodb+srv://<USER>:<PASSWORD>@cluster5.t4r5.mongodb.net/<DATABASE>?retryWrites=true&w=majority

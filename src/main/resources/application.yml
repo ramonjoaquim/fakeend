@@ -1,0 +1,9 @@
+server:
+  error:
+    include-message: always
+    include-stacktrace: always
+spring:
+  data:
+    mongodb:
+      database: fakeend-dev #your database name, if not exists will be created on startup
+      uri: mongodb+srv://admlocal:admpassword@fakeendlocal.7miesvl.mongodb.net/?retryWrites=true&w=majority

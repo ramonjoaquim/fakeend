@@ -1,4 +1,4 @@
-package com.br.fakeend;
+package br.com.fakeend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
