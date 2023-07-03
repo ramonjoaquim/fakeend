@@ -6,10 +6,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public record Endpoint(
         String id,
         String name,
-        String path
+        String path,
+        Integer delay
 ) {
 
-    public Endpoint(String name, String path) {
-        this(null, name, path);
+    public Endpoint(String name, String path, Integer delay) {
+        this(null, name, path, delay);
     }
 }

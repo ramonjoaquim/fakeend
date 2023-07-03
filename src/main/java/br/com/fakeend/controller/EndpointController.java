@@ -40,7 +40,7 @@ public class EndpointController {
             throw new ResponseStatusException(HttpStatus.CONFLICT, messageConflict);
         }
 
-        Endpoint endpoint = new Endpoint(dto.getName(), dto.getPath());
+        Endpoint endpoint = new Endpoint(dto.getName(), dto.getPath(), dto.getDelay());
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(repository.insert(endpoint));
