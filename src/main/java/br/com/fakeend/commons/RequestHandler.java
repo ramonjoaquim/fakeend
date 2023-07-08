@@ -13,6 +13,7 @@ public class RequestHandler {
     private String path;
     private Integer id;
     private boolean purgeAll;
+    private String requestURL;
 
     @Getter(AccessLevel.NONE)
     private final HttpServletRequest request;
@@ -49,5 +50,6 @@ public class RequestHandler {
 
         this.path = path;
         this.id = idPath;
+        this.requestURL = request.getRequestURL().toString();
     }
 }

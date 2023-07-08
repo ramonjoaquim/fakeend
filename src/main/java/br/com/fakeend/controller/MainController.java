@@ -6,10 +6,7 @@ import br.com.fakeend.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -40,12 +37,14 @@ public class MainController {
             method = {RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.PATCH}
     )
     public ResponseEntity<Object> handler(@RequestBody(required = false) Map<String, Object> body,
-                                     HttpServletRequest request) throws FakeendException {
+                                          @RequestParam(defaultValue = "0", required = false) int page,
+                                          @RequestParam(defaultValue = "10", required = false) int size,
+                                          HttpServletRequest request) throws FakeendException {
 
         RequestHandler requestHandler = new RequestHandler(request);
 
         return switch (RequestMethod.valueOf(request.getMethod())) {
-            case GET -> getService.process(requestHandler);
+            case GET -> getService.process(requestHandler, page, size);
             case DELETE -> deleteService.process(requestHandler);
             case POST -> postService.process(requestHandler, body);
             case PUT -> putService.process(requestHandler, body);

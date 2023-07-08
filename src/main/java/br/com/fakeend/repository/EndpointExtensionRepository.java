@@ -1,16 +1,21 @@
 package br.com.fakeend.repository;
 
+import br.com.fakeend.commons.RequestHandler;
 import br.com.fakeend.dto.TimeoutDTO;
+import br.com.fakeend.handler.Pagination;
 import br.com.fakeend.model.Content;
 import br.com.fakeend.model.Endpoint;
 import br.com.fakeend.model.EndpointContent;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -29,6 +34,20 @@ public class EndpointExtensionRepository {
 
     public EndpointExtensionRepository(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
+    }
+
+    public PagedModel<Content> findAll(RequestHandler requestHandler, String endpointName, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by("id"));
+        Pagination<Content> pagination = new Pagination<>(requestHandler, pageRequest);
+
+        Query query = new Query(Criteria.where(NAME).is(endpointName)).with(pageRequest);
+        Query queryTotal = new Query(Criteria.where(NAME).is(endpointName));
+
+        List<Content> endpointContents = mongoTemplate.find(query, EndpointContent.class)
+                .stream().map(EndpointContent::content).toList();
+        long totalElements = mongoTemplate.count(queryTotal, EndpointContent.class);
+
+        return pagination.pageOf(endpointContents, size, page, totalElements);
     }
 
     public long deleteByContentId(Integer id) {

@@ -11,6 +11,6 @@ public interface EndpointContentRepository extends MongoRepository<EndpointConte
     @Query("{endpointName: '?0'}")
     List<EndpointContent> findByName(String name);
 
-    @Query("{'endpointName': '?0', 'content.id': ?1}")
+    @Query("{'endpointName': '?0', 'content._fakeendIdentifier': ?1}")
     EndpointContent findByEndpointNameAndContentId(String name, Integer id);
 }
