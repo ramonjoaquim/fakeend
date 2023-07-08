@@ -14,5 +14,5 @@ public class EndpointDTO {
     @NotEmpty(message = "path should be informed")
     private String path;
 
-    private Integer delay;
+    private Integer timeout;
 }

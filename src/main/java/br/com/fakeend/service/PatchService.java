@@ -5,7 +5,7 @@ import br.com.fakeend.commons.Constants;
 import br.com.fakeend.commons.RequestHandler;
 import br.com.fakeend.handler.FakeendResponse;
 import br.com.fakeend.model.Endpoint;
-import br.com.fakeend.repository.EndpointContentExtensionRepository;
+import br.com.fakeend.repository.EndpointExtensionRepository;
 import br.com.fakeend.repository.EndpointContentRepository;
 import br.com.fakeend.repository.EndpointRepository;
 import com.mongodb.client.result.UpdateResult;
@@ -22,11 +22,11 @@ public class PatchService {
     private final EndpointRepository endpointRepository;
 
     private final EndpointContentRepository endpointContentRepository;
-    private final EndpointContentExtensionRepository ecRepository;
+    private final EndpointExtensionRepository ecRepository;
 
     public PatchService(EndpointRepository endpointRepository,
                         EndpointContentRepository endpointContentRepository,
-                        EndpointContentExtensionRepository ecRepository) {
+                        EndpointExtensionRepository ecRepository) {
         this.endpointRepository = endpointRepository;
         this.endpointContentRepository = endpointContentRepository;
         this.ecRepository = ecRepository;
@@ -39,13 +39,15 @@ public class PatchService {
 
         body.put(Constants.ID, requestHandler.getId());
 
-        UpdateResult target = ecRepository.patch(requestHandler.getId(), body);
+        UpdateResult target = ecRepository.patchEndpointContent(requestHandler.getId(), body);
 
         if (target == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "%s with id %s not found".formatted(endpoint.name(), requestHandler.getId()));
         }
 
-        return FakeendResponse.ok()
-                .body(endpointContentRepository.findByEndpointNameAndContentId(endpoint.name(), requestHandler.getId()).content().body());
+        Map<String, Object> objectMap = endpointContentRepository.findByEndpointNameAndContentId(endpoint.name(),
+                requestHandler.getId()).content().body();
+
+        return FakeendResponse.ok(objectMap, endpoint);
     }
 }

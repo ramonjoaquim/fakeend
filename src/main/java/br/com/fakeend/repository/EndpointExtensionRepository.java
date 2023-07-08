@@ -1,6 +1,8 @@
 package br.com.fakeend.repository;
 
+import br.com.fakeend.dto.TimeoutDTO;
 import br.com.fakeend.model.Content;
+import br.com.fakeend.model.Endpoint;
 import br.com.fakeend.model.EndpointContent;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
@@ -17,7 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public class EndpointContentExtensionRepository {
+public class EndpointExtensionRepository {
 
     private static final String CONTENT_ID = "content.id";
     private static final String CONTENT_BODY = "content.body";
@@ -25,7 +27,7 @@ public class EndpointContentExtensionRepository {
 
     private final MongoTemplate mongoTemplate;
 
-    public EndpointContentExtensionRepository(MongoTemplate mongoTemplate) {
+    public EndpointExtensionRepository(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 
@@ -49,7 +51,7 @@ public class EndpointContentExtensionRepository {
         return mongoTemplate.updateFirst(query, update, EndpointContent.class);
     }
 
-    public UpdateResult patch(Integer id, Map<String, Object> body) {
+    public UpdateResult patchEndpointContent(Integer id, Map<String, Object> body) {
         EndpointContent endpointContent = findEndpointByContentId(id);
         if (endpointContent == null) {
             return null;
@@ -60,6 +62,19 @@ public class EndpointContentExtensionRepository {
 
         return mongoTemplate.updateFirst(query, update, EndpointContent.class);
     }
+
+    public UpdateResult patchEndpoint(String objectId, TimeoutDTO dto) {
+        Query query = new Query(Criteria.where("_id").is(objectId));
+        Endpoint endpoint = mongoTemplate.findOne(query, Endpoint.class);
+        if (endpoint == null) {
+            return null;
+        }
+
+        Update update = new Update().set("timeout", dto.getTimeout());
+
+        return mongoTemplate.updateFirst(query, update, Endpoint.class);
+    }
+
 
     private Update replacePropertiesContent(Content content, Map<String, Object> body) {
         Map<String, Object> contentBody = content.body();

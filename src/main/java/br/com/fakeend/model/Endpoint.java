@@ -7,10 +7,10 @@ public record Endpoint(
         String id,
         String name,
         String path,
-        Integer delay
+        Integer timeout
 ) {
 
-    public Endpoint(String name, String path, Integer delay) {
-        this(null, name, path, delay);
+    public Endpoint(String name, String path, Integer timeout) {
+        this(null, name, path, timeout);
     }
 }

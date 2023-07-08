@@ -19,7 +19,7 @@ import java.util.Map;
 @ControllerAdvice
 public class ExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ExceptionHandler.class);
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(@NotNull MethodArgumentNotValidException ex,
@@ -43,11 +43,11 @@ public class ExceptionHandler extends ResponseEntityExceptionHandler {
                                                              @NotNull WebRequest request) {
         String message = "An exception occured, which will cause a {} response";
         if (statusCode.is5xxServerError()) {
-            LOGGER.error(message, statusCode, ex);
+            LOG.error(message, statusCode, ex);
         } else if (statusCode.is4xxClientError()){
-            LOGGER.warn(message, statusCode, ex);
+            LOG.warn(message, statusCode, ex);
         } else {
-            LOGGER.debug(message, statusCode, ex);
+            LOG.debug(message, statusCode, ex);
         }
 
         return super.handleExceptionInternal(ex, body, headers, statusCode, request);

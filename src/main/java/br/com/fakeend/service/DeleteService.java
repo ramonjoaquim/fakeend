@@ -5,7 +5,7 @@ import br.com.fakeend.commons.Constants;
 import br.com.fakeend.commons.RequestHandler;
 import br.com.fakeend.handler.FakeendResponse;
 import br.com.fakeend.model.Endpoint;
-import br.com.fakeend.repository.EndpointContentExtensionRepository;
+import br.com.fakeend.repository.EndpointExtensionRepository;
 import br.com.fakeend.repository.EndpointRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,9 +16,9 @@ import org.springframework.web.server.ResponseStatusException;
 public class DeleteService {
 
     private final EndpointRepository endpointRepository;
-    private final EndpointContentExtensionRepository eceRepository;
+    private final EndpointExtensionRepository eceRepository;
 
-    public DeleteService(EndpointRepository endpointRepository, EndpointContentExtensionRepository eceRepository) {
+    public DeleteService(EndpointRepository endpointRepository, EndpointExtensionRepository eceRepository) {
         this.endpointRepository = endpointRepository;
         this.eceRepository = eceRepository;
     }

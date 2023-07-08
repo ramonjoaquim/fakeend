@@ -3,8 +3,9 @@ package br.com.fakeend.service;
 import br.com.fakeend.Utils.ValidatorRequestUtils;
 import br.com.fakeend.commons.Constants;
 import br.com.fakeend.commons.RequestHandler;
+import br.com.fakeend.handler.FakeendResponse;
 import br.com.fakeend.model.Endpoint;
-import br.com.fakeend.repository.EndpointContentExtensionRepository;
+import br.com.fakeend.repository.EndpointExtensionRepository;
 import br.com.fakeend.repository.EndpointRepository;
 import com.mongodb.client.result.UpdateResult;
 import org.springframework.http.HttpStatus;
@@ -17,9 +18,9 @@ import java.util.Map;
 public class PutService {
 
     private final EndpointRepository endpointRepository;
-    private final EndpointContentExtensionRepository ecRepository;
+    private final EndpointExtensionRepository ecRepository;
 
-    public PutService(EndpointRepository endpointRepository, EndpointContentExtensionRepository ecRepository) {
+    public PutService(EndpointRepository endpointRepository, EndpointExtensionRepository ecRepository) {
         this.endpointRepository = endpointRepository;
         this.ecRepository = ecRepository;
     }
@@ -34,11 +35,13 @@ public class PutService {
         UpdateResult target = ecRepository.updateContent(requestHandler.getId(), body);
 
         if (target.getModifiedCount() == 0) {
-            return ResponseEntity
+            return FakeendResponse
                     .status(HttpStatus.NO_CONTENT)
-                    .body("Record with id " + body.get(Constants.ID) + " not found.");
+                    .endpoint(endpoint)
+                    .body("Record with id " + body.get(Constants.ID) + " not found.")
+                    .build();
         }
 
-        return ResponseEntity.ok().build();
+        return FakeendResponse.ok(null, endpoint);
     }
 }

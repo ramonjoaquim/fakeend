@@ -1,18 +1,20 @@
 package br.com.fakeend.handler;
 
 import br.com.fakeend.model.Endpoint;
+import lombok.EqualsAndHashCode;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 
 import java.util.concurrent.TimeUnit;
 
+@EqualsAndHashCode
 public class FakeendResponse<T> extends ResponseEntity<T> {
 
     private Endpoint endpoint;
 
-    private FakeendResponse(HttpStatus status, Endpoint endpoint) {
-        super(status);
+    private FakeendResponse(T body, HttpStatus status, Endpoint endpoint) {
+        super(body, status);
         this.endpoint = endpoint;
     }
 
@@ -27,6 +29,7 @@ public class FakeendResponse<T> extends ResponseEntity<T> {
     public static class FakeendResponseBuilder {
         private final HttpStatus status;
         private Endpoint endpoint;
+        private Object body;
 
         private FakeendResponseBuilder(HttpStatus status) {
             this.status = status;
@@ -37,9 +40,15 @@ public class FakeendResponse<T> extends ResponseEntity<T> {
             return this;
         }
 
+        public FakeendResponseBuilder body(Object body) {
+            this.body = body;
+            return this;
+        }
+
         public <T> FakeendResponse<T> build() {
-            delay(endpoint);
-            return new FakeendResponse<>(status, endpoint);
+            applyTimeout(endpoint);
+
+            return (FakeendResponse<T>) new FakeendResponse<>(body, status, endpoint);
         }
     }
 
@@ -48,14 +57,15 @@ public class FakeendResponse<T> extends ResponseEntity<T> {
     }
 
     public static <T> FakeendResponse<T> ok(T body, Endpoint endpoint) {
-        delay(endpoint);
+        applyTimeout(endpoint);
+
         return new FakeendResponse<>(body, HttpStatus.OK);
     }
 
-    private static void delay(Endpoint endpoint) {
+    private static void applyTimeout(Endpoint endpoint) {
         try {
-            if (endpoint.delay() != null) {
-                TimeUnit.SECONDS.sleep(endpoint.delay());
+            if (endpoint.timeout() != null) {
+                TimeUnit.SECONDS.sleep(endpoint.timeout());
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

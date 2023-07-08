@@ -1,8 +1,11 @@
 package br.com.fakeend.controller;
 
 import br.com.fakeend.dto.EndpointDTO;
+import br.com.fakeend.dto.TimeoutDTO;
 import br.com.fakeend.model.Endpoint;
+import br.com.fakeend.repository.EndpointExtensionRepository;
 import br.com.fakeend.repository.EndpointRepository;
+import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,9 +26,11 @@ import java.util.Optional;
 public class EndpointController {
 
     private final EndpointRepository repository;
+    private final EndpointExtensionRepository endpointExtensionRepository;
 
-    public EndpointController(EndpointRepository repository) {
+    public EndpointController(EndpointRepository repository, EndpointExtensionRepository endpointExtensionRepository) {
         this.repository = repository;
+        this.endpointExtensionRepository = endpointExtensionRepository;
     }
 
     @GetMapping
@@ -40,7 +45,7 @@ public class EndpointController {
             throw new ResponseStatusException(HttpStatus.CONFLICT, messageConflict);
         }
 
-        Endpoint endpoint = new Endpoint(dto.getName(), dto.getPath(), dto.getDelay());
+        Endpoint endpoint = new Endpoint(dto.getName(), dto.getPath(), dto.getTimeout());
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(repository.insert(endpoint));
@@ -57,6 +62,20 @@ public class EndpointController {
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .build();
+    }
+
+    @PutMapping(path = "{id}/timeout")
+    public ResponseEntity<Object> timeout(@PathVariable("id") String id, @RequestBody TimeoutDTO dto) {
+        UpdateResult patch = endpointExtensionRepository.patchEndpoint(id, dto);
+        if (patch.getModifiedCount() == 0) {
+            return ResponseEntity
+                    .status(HttpStatus.NO_CONTENT)
+                    .body("Endpoint with id " + id + " not found.");
+        }
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(repository.findById(id));
     }
 
     private boolean isEndpointExists(EndpointDTO dto) {

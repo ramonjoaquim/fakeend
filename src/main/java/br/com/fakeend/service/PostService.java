@@ -36,11 +36,11 @@ public class PostService {
 
         ecRepository.insert(insert);
 
-        //TODO:RESOLVER
         return FakeendResponse
                 .status(HttpStatus.CREATED)
                 .endpoint(endpoint)
-                .body(content.body());
+                .body(content.body())
+                .build();
     }
 
     private Content transformData(Endpoint endpoint, Map<String, Object> body) {
