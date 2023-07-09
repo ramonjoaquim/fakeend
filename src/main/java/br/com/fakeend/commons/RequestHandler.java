@@ -24,6 +24,7 @@ public class RequestHandler {
 
     public RequestHandler(HttpServletRequest request) {
         this.request = request;
+        this.id = Constants.ID_PATH_DEFAULT;
         create();
     }
 
@@ -32,9 +33,7 @@ public class RequestHandler {
     }
 
     private void create() {
-        this.id = Constants.ID_PATH_DEFAULT;
         String endpointPath = getEndpointPath();
-
         if (isPathById(endpointPath)) {
             buildPathAndId(endpointPath);
             return;
