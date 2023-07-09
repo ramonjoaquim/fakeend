@@ -27,8 +27,11 @@ public class RequestHandler {
         create();
     }
 
+    public String getRequestURL() {
+        return this.request.getRequestURL().toString();
+    }
+
     private void create() {
-        this.requestURL = request.getRequestURL().toString();
         this.id = Constants.ID_PATH_DEFAULT;
         String endpointPath = getEndpointPath();
 

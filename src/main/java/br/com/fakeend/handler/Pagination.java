@@ -33,15 +33,16 @@ public class Pagination<T> extends PagedModel<T> {
     }
 
     private void appendLinks(PagedModel<T> pagedModel, Page<T> resourcePage, int page, int size) {
+        String requestURL = requestHandler.getRequestURL();
         if (resourcePage.hasNext()) {
             int nextPage = page + 1;
-            Link nextLink = Link.of("%s?page=%d&size=%d".formatted(requestHandler.getRequestURL(), nextPage, size));
+            Link nextLink = Link.of("%s?page=%d&size=%d".formatted(requestURL, nextPage, size));
             pagedModel.add(nextLink);
         }
 
         if (resourcePage.hasPrevious()) {
             int prevPage = page - 1;
-            Link prevLink = Link.of("%s?page=%d&size=%d".formatted(requestHandler.getRequestURL(), prevPage, size));
+            Link prevLink = Link.of("%s?page=%d&size=%d".formatted(requestURL, prevPage, size));
             pagedModel.add(prevLink);
         }
     }
