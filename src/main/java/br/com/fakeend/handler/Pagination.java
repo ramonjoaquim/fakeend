@@ -25,15 +25,14 @@ public class Pagination<T> extends PagedModel<T> {
                                  int page,
                                  long totalElements) {
         Page<T> resourcePage = new PageImpl<>(contents, pageRequest, totalElements);
-
-        PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(
-                size,
-                resourcePage.getNumber(),
-                resourcePage.getTotalElements()
-        );
-
+        PagedModel.PageMetadata pageMetadata = getMetadata(resourcePage, size);
         PagedModel<T> pagedModel = PagedModel.of(contents, pageMetadata);
+        appendLinks(pagedModel, resourcePage, page, size);
 
+        return pagedModel;
+    }
+
+    private void appendLinks(PagedModel<T> pagedModel, Page<T> resourcePage, int page, int size) {
         if (resourcePage.hasNext()) {
             int nextPage = page + 1;
             Link nextLink = Link.of("%s?page=%d&size=%d".formatted(requestHandler.getRequestURL(), nextPage, size));
@@ -45,7 +44,13 @@ public class Pagination<T> extends PagedModel<T> {
             Link prevLink = Link.of("%s?page=%d&size=%d".formatted(requestHandler.getRequestURL(), prevPage, size));
             pagedModel.add(prevLink);
         }
+    }
 
-        return pagedModel;
+    private PagedModel.PageMetadata getMetadata(Page<T> resourcePage, int size) {
+        return new PagedModel.PageMetadata(
+                size,
+                resourcePage.getNumber(),
+                resourcePage.getTotalElements()
+        );
     }
 }

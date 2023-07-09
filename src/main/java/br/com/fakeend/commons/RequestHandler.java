@@ -28,32 +28,50 @@ public class RequestHandler {
     }
 
     private void create() {
-        String fullPath = request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE).toString();
-        int pathId = Constants.ID_PATH_DEFAULT;
-        String pathBuilder;
+        this.requestURL = request.getRequestURL().toString();
+        this.id = Constants.ID_PATH_DEFAULT;
+        String endpointPath = getEndpointPath();
 
-        String[] splitPath = fullPath.split(API_HOST);
-        String endpointPath = splitPath[1];
-
-        // verify path ends with number
-        if (!endpointPath.matches("^.+?\\d$")) {
-            if (endpointPath.endsWith(ENDPOINT_PURGE)) {
-                pathBuilder = endpointPath.replace(ENDPOINT_PURGE, "");
-                this.purgeAll = true;
-            } else {
-                pathBuilder = endpointPath;
-            }
-        } else {
-            // remove number from string
-            pathBuilder = endpointPath.replaceAll("\\d", "");
-            // remove last caracter
-            pathBuilder = pathBuilder.replaceFirst(".$", "");
-            // get id in path
-            pathId = Integer.parseInt(endpointPath.replaceAll("\\D+", ""));
+        if (isPathById(endpointPath)) {
+            buildPathAndId(endpointPath);
+            return;
         }
 
-        this.path = pathBuilder;
-        this.id = pathId;
-        this.requestURL = request.getRequestURL().toString();
+        if (isPurgeAll(endpointPath)) {
+            buildPathAndPurgeAll(endpointPath);
+            return;
+        }
+
+        this.path = endpointPath;
+    }
+
+    private String getEndpointPath() {
+        String fullPath = request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE).toString();
+        String[] splitPath = fullPath.split(API_HOST);
+
+        return splitPath[1];
+    }
+
+    private void buildPathAndId(String path) {
+        String pathBuilder;
+        // remove number from string
+        pathBuilder = path.replaceAll("\\d", "");
+        // remove last caracter
+        this.path = pathBuilder.replaceFirst(".$", "");
+        // get id in path
+        this.id = Integer.parseInt(path.replaceAll("\\D+", ""));
+    }
+
+    private boolean isPathById(String path) {
+        return path.matches("^.+?\\d$");
+    }
+
+    private void buildPathAndPurgeAll(String path) {
+        this.path = path.replace(ENDPOINT_PURGE, "");
+        this.purgeAll = true;
+    }
+
+    private boolean isPurgeAll(String path) {
+        return path.endsWith(ENDPOINT_PURGE);
     }
 }
