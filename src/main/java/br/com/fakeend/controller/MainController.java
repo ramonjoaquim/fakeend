@@ -33,7 +33,7 @@ public class MainController {
     }
 
     @RequestMapping(
-            value = "/**",
+            value = "/public/**",
             method = {RequestMethod.POST, RequestMethod.GET, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.PATCH}
     )
     public ResponseEntity<Object> handler(@RequestBody(required = false) Map<String, Object> body,

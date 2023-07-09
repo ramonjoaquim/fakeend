@@ -2,6 +2,7 @@ package br.com.fakeend.handler;
 
 import br.com.fakeend.commons.RequestHandler;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -13,6 +14,7 @@ import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 public class Pagination<T> extends PagedModel<T> {
 
     private RequestHandler requestHandler;
@@ -22,7 +24,6 @@ public class Pagination<T> extends PagedModel<T> {
                                  int size,
                                  int page,
                                  long totalElements) {
-
         Page<T> resourcePage = new PageImpl<>(contents, pageRequest, totalElements);
 
         PagedModel.PageMetadata pageMetadata = new PagedModel.PageMetadata(

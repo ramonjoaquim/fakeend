@@ -1,4 +1,4 @@
-package br.com.fakeend.Utils;
+package br.com.fakeend.utils;
 
 import br.com.fakeend.commons.Constants;
 import br.com.fakeend.commons.RequestHandler;

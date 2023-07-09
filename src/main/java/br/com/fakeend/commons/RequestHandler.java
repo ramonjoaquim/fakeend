@@ -3,20 +3,24 @@ package br.com.fakeend.commons;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.web.servlet.HandlerMapping;
 
 @Getter
+@Setter
 public class RequestHandler {
 
+    @Getter(AccessLevel.NONE)
     private static final String API_HOST = "/fakeend/";
+    @Getter(AccessLevel.NONE)
     private static final String ENDPOINT_PURGE = "/purge-all";
+    @Getter(AccessLevel.NONE)
+    private final HttpServletRequest request;
+
     private String path;
     private Integer id;
     private boolean purgeAll;
     private String requestURL;
-
-    @Getter(AccessLevel.NONE)
-    private final HttpServletRequest request;
 
     public RequestHandler(HttpServletRequest request) {
         this.request = request;
@@ -25,8 +29,8 @@ public class RequestHandler {
 
     private void create() {
         String fullPath = request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE).toString();
-        String path;
-        int idPath = Constants.ID_PATH_DEFAULT;
+        int pathId = Constants.ID_PATH_DEFAULT;
+        String pathBuilder;
 
         String[] splitPath = fullPath.split(API_HOST);
         String endpointPath = splitPath[1];
@@ -34,22 +38,22 @@ public class RequestHandler {
         // verify path ends with number
         if (!endpointPath.matches("^.+?\\d$")) {
             if (endpointPath.endsWith(ENDPOINT_PURGE)) {
-                path = endpointPath.replace(ENDPOINT_PURGE, "");
+                pathBuilder = endpointPath.replace(ENDPOINT_PURGE, "");
                 this.purgeAll = true;
             } else {
-                path = endpointPath;
+                pathBuilder = endpointPath;
             }
         } else {
             // remove number from string
-            path = endpointPath.replaceAll("\\d", "");
+            pathBuilder = endpointPath.replaceAll("\\d", "");
             // remove last caracter
-            path = path.replaceFirst(".$", "");
+            pathBuilder = pathBuilder.replaceFirst(".$", "");
             // get id in path
-            idPath = Integer.parseInt(endpointPath.replaceAll("\\D+", ""));
+            pathId = Integer.parseInt(endpointPath.replaceAll("\\D+", ""));
         }
 
-        this.path = path;
-        this.id = idPath;
+        this.path = pathBuilder;
+        this.id = pathId;
         this.requestURL = request.getRequestURL().toString();
     }
 }

@@ -1,6 +1,6 @@
 package br.com.fakeend.service;
 
-import br.com.fakeend.Utils.ValidatorRequestUtils;
+import br.com.fakeend.utils.ValidatorRequestUtils;
 import br.com.fakeend.commons.Constants;
 import br.com.fakeend.commons.RequestHandler;
 import br.com.fakeend.handler.FakeendResponse;
